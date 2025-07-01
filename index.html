@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colorectal Cancer Knowledge Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .quiz-subtitle {
+            font-size: 16px;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #3182ce);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .question-counter {
+            text-align: right;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f7fafc;
+        }
+
+        .option:hover {
+            border-color: #cbd5e0;
+            background: #edf2f7;
+        }
+
+        .option.selected {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .option label {
+            cursor: pointer;
+            font-size: 16px;
+            color: #2d3748;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:disabled {
+            background: #a0aec0;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .prev-btn {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .prev-btn:not(:disabled) {
+            background: #718096;
+        }
+
+        .prev-btn:not(:disabled):hover {
+            background: #4a5568;
+        }
+
+        .next-btn {
+            background: linear-gradient(90deg, #4299e1, #3182ce);
+            color: white;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background: linear-gradient(90deg, #3182ce, #2c5aa0);
+            transform: translateY(-1px);
+        }
+
+        .results-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #38a169;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(90deg, #38a169, #2f855a);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1 class="quiz-title">Colorectal Cancer Knowledge Quiz</h1>
+            <p class="quiz-subtitle">Test your knowledge about colorectal cancer prevention, symptoms, and screening based on current medical guidelines</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-counter">
+                Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span>
+            </div>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <!-- Questions will be populated by JavaScript -->
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn prev-btn" id="prevBtn" onclick="previousQuestion()">Previous</button>
+            <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="score" id="finalScore">8/10</div>
+            <h2>Quiz Complete!</h2>
+            <p>You've completed the colorectal cancer knowledge quiz.</p>
+            <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "At what age should most people start colorectal cancer screening?",
+                options: ["40 years old", "45 years old", "50 years old", "55 years old"],
+                correct: 1
+            },
+            {
+                question: "What is colorectal cancer's ranking as a cancer killer in the U.S.?",
+                options: ["First leading cause", "Second leading cause", "Third leading cause", "Fourth leading cause"],
+                correct: 1
+            },
+            {
+                question: "What are precancerous polyps?",
+                options: ["Large tumors in the colon", "Small growths that can turn into cancer", "Infections in the digestive tract", "Genetic mutations"],
+                correct: 1
+            },
+            {
+                question: "Which test uses antibodies to find blood in stool?",
+                options: ["gFOBT", "FIT", "CT Colonography", "Flexible Sigmoidoscopy"],
+                correct: 1
+            },
+            {
+                question: "What does FIT-DNA combine to detect cancer?",
+                options: ["Blood test and urine test", "FIT test and DNA test for cancer cells", "X-rays and blood work", "Genetic screening and colonoscopy"],
+                correct: 1
+            },
+            {
+                question: "Which screening method examines the entire colon?",
+                options: ["Flexible Sigmoidoscopy", "gFOBT", "Colonoscopy", "FIT test"],
+                correct: 2
+            },
+            {
+                question: "What should you do if you notice blood in your stool?",
+                options: ["Wait and see if it continues", "Contact your doctor immediately", "Increase fiber intake", "Take over-the-counter medication"],
+                correct: 1
+            },
+            {
+                question: "Which condition increases your risk for colorectal cancer?",
+                options: ["High blood pressure", "Inflammatory bowel disease", "Diabetes", "Asthma"],
+                correct: 1
+            },
+            {
+                question: "What is a major benefit of early colorectal cancer detection?",
+                options: ["No treatment needed", "Treatment is much more likely to work", "Cancer spreads faster", "Symptoms are more obvious"],
+                correct: 1
+            },
+            {
+                question: "How are most colorectal cancer screening tests covered by insurance?",
+                options: ["With high deductibles", "Only partially covered", "With no deductible or co-pay", "Not covered at all"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex];
+            const questionContainer = document.getElementById('questionContainer');
+            
+            questionContainer.innerHTML = `
+                <div class="question-number">${currentQuestionIndex + 1}. ${question.question}</div>
+                <div class="options-container">
+                    ${question.options.map((option, index) => `
+                        <div class="option" onclick="selectOption(${index})">
+                            <input type="radio" name="question${currentQuestionIndex}" id="option${index}" value="${index}">
+                            <label for="option${index}">${option}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Update progress
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question';
+
+            // Restore previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== undefined) {
+                const selectedOption = document.querySelector(`input[value="${userAnswers[currentQuestionIndex]}"]`);
+                if (selectedOption) {
+                    selectedOption.checked = true;
+                    selectedOption.closest('.option').classList.add('selected');
+                }
+            }
+        }
+
+        function selectOption(optionIndex) {
+            // Remove previous selection
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add selection to clicked option
+            const selectedOption = document.querySelector(`input[value="${optionIndex}"]`);
+            selectedOption.checked = true;
+            selectedOption.closest('.option').classList.add('selected');
+
+            // Store user's answer
+            userAnswers[currentQuestionIndex] = optionIndex;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    score++;
+                }
+            }
+
+            // Hide quiz, show results
+            document.getElementById('questionContainer').style.display = 'none';
+            document.querySelector('.navigation').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            score = 0;
+
+            document.getElementById('questionContainer').style.display = 'block';
+            document.querySelector('.navigation').style.display = 'flex';
+            document.querySelector('.progress-container').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+
+            displayQuestion();
+        }
+
+        // Initialize quiz
+        document.getElementById('totalQuestions').textContent = questions.length;
+        displayQuestion();
+    </script>
+</body>
+</html>
